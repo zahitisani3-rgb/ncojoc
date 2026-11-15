@@ -77,6 +77,7 @@ const clone = <T,>(v: T): T => JSON.parse(JSON.stringify(v)) as T;
 
 const MAJOR_SHORT: Record<string, string> = {
   'computer science': 'CS',
+  'computer science (b.s.)': 'CS',
   'biological sciences': 'Biology',
   biology: 'Biology',
   'business administration': 'Business',

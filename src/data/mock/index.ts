@@ -40,9 +40,12 @@ const hoursLabel: Record<string, string> = {
 export function mockGeneratePathway(answers: OnboardingAnswers): { pathway: Pathway; week: Week } {
   const theme = themeForInterests(answers.interests);
   const t = templates[theme];
-  const target = answers.internshipTarget && answers.internshipTarget !== 'Not this year'
-    ? `an internship by ${answers.internshipTarget}`
-    : 'steady progress this year';
+  const target =
+    answers.internshipTarget === 'Not sure yet' || !answers.internshipTarget
+      ? 'room to figure out the right next step'
+      : answers.internshipTarget === 'After graduation'
+        ? 'a strong job search after graduation'
+        : `an internship by ${answers.internshipTarget}`;
   const hours = answers.hours ? hoursLabel[answers.hours] : 'a few hours';
   const pathway: Pathway = {
     ...clone(t.base),
