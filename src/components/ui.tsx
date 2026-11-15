@@ -204,15 +204,17 @@ export function Avatar({
   size = 40,
   className,
   textClass = 'text-gold',
+  bg = 'bg-cardinal',
 }: {
   initials: string;
   size?: number;
   className?: string;
   textClass?: string;
+  bg?: string;
 }) {
   return (
     <span
-      className={cx('flex shrink-0 items-center justify-center rounded-full bg-cardinal font-display font-bold', textClass, className)}
+      className={cx('flex shrink-0 items-center justify-center rounded-full font-display font-bold', bg, textClass, className)}
       style={{ width: size, height: size, fontSize: Math.round(size * 0.35) }}
     >
       {initials}

@@ -89,7 +89,7 @@ export default function WelcomePage() {
               loading === d.id && 'border-cardinal',
             )}
           >
-            <Avatar initials={d.initials} size={48} className={d.bg} textClass={d.id === 'maya' ? 'text-gold' : 'text-white'} />
+            <Avatar initials={d.initials} size={48} bg={d.bg} textClass={d.id === 'maya' ? 'text-gold' : 'text-white'} />
             <div className="flex min-w-0 flex-1 flex-col gap-1">
               <p className="text-[16px] font-semibold text-ink">{d.name}</p>
               <p className="text-[13px] text-muted">{d.desc}</p>

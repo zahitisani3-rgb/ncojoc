@@ -38,7 +38,7 @@ export function LeaderRow({ row, large = false, showStats = false }: { row: Lead
     <div
       className={cx(
         'flex w-full items-center gap-[10px] rounded-[10px] px-[10px]',
-        large ? 'py-3' : 'py-[9px]',
+        large ? 'py-2' : 'py-[9px]',
         row.isYou && 'bg-cardinal-soft',
       )}
     >
@@ -53,7 +53,7 @@ export function LeaderRow({ row, large = false, showStats = false }: { row: Lead
         <Avatar
           initials={row.initials}
           size={34}
-          className={row.isYou ? '' : 'bg-border'}
+          bg={row.isYou ? 'bg-cardinal' : 'bg-bg'}
           textClass={row.isYou ? 'text-gold' : 'text-muted'}
         />
       )}
