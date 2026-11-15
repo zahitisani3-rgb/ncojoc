@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Check, ChevronsUp } from 'lucide-react';
 import type { Pathway, Theme } from '@/types';
 import { levelFor } from '@/lib/points';
