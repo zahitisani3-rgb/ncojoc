@@ -1,9 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
-  cacheComponents: true,
-  partialPrefetching: true,
+  // All state lives client-side (Zustand + localStorage), so Cache Components
+  // and partial prefetching add nothing here and fight the hydration gate.
   turbopack: {
     rules: {
       "*.css": {
