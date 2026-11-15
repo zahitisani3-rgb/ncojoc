@@ -28,6 +28,12 @@ export interface EventLogEntry {
   note?: string;
 }
 
+export interface XpChange {
+  delta: number;
+  reason: string;
+  at: number;
+}
+
 export interface LoggableEvent {
   id: string;
   title: string;
@@ -80,6 +86,8 @@ interface AppState {
   adjustedAt: number | null;
   /** Campus events the student RSVP'd to or attended, keyed by event id. */
   eventLog: Record<string, EventLogEntry>;
+  /** The most recent XP change and why, shown as a toast in the app shell. */
+  lastXp: XpChange | null;
 
   setAnswers: (patch: Partial<OnboardingAnswers>) => void;
   loadPersona: (id: PersonaId) => void;
@@ -167,6 +175,7 @@ export const useApp = create<AppState>()(
       recentlyApproved: [],
       adjustedAt: null,
       eventLog: {},
+      lastXp: null,
 
       setAnswers: (patch) => set((s) => ({ answers: { ...s.answers, ...patch } })),
 
@@ -237,6 +246,7 @@ export const useApp = create<AppState>()(
             tasks: week.tasks.map((t) => (t.id === taskId ? { ...t, done, proof_url: done ? proofUrl ?? t.proof_url : t.proof_url } : t)),
           },
           totalPoints: Math.max(0, totalPoints + (done ? task.points : -task.points)),
+          lastXp: { delta: done ? task.points : -task.points, reason: done ? task.title : `Unchecked · ${task.title}`, at: Date.now() },
         });
       },
 
@@ -273,6 +283,7 @@ export const useApp = create<AppState>()(
           pathway: nextPathway,
           streak: streak + 1,
           totalPoints: totalPoints + CHECKIN_POINTS + bonus,
+          lastXp: { delta: CHECKIN_POINTS + bonus, reason: bonus ? 'Weekly check-in + streak bonus' : 'Weekly check-in', at: Date.now() },
           checkins: [...checkins, checkin],
           trend: [
             ...trend,
@@ -307,6 +318,11 @@ export const useApp = create<AppState>()(
         set({
           eventLog: { ...eventLog, [ev.id]: { title: ev.title, org: ev.org, startsOn: ev.startsOn, attended: false, going } },
           totalPoints: Math.max(0, totalPoints + (going ? EVENT_GOING_POINTS : -EVENT_GOING_POINTS)),
+          lastXp: {
+            delta: going ? EVENT_GOING_POINTS : -EVENT_GOING_POINTS,
+            reason: going ? `Going to ${ev.title}` : `No longer going to ${ev.title}`,
+            at: Date.now(),
+          },
         });
       },
 
@@ -330,6 +346,11 @@ export const useApp = create<AppState>()(
           },
           // Students who skipped "I'm going" still get the RSVP points on top.
           totalPoints: totalPoints + EVENT_ATTENDED_POINTS + (prev?.going ? 0 : EVENT_GOING_POINTS),
+          lastXp: {
+            delta: EVENT_ATTENDED_POINTS + (prev?.going ? 0 : EVENT_GOING_POINTS),
+            reason: `Attended ${ev.title}`,
+            at: Date.now(),
+          },
           resume: resume.some((e) => e.id === entry.id) ? resume : [...resume, entry],
         });
       },

@@ -2,8 +2,8 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useEffect, type ReactNode } from 'react';
-import { CalendarDays } from 'lucide-react';
+import { useEffect, useState, type ReactNode } from 'react';
+import { CalendarDays, Minus, Plus } from 'lucide-react';
 import { useApp, useHydrated } from '@/lib/store';
 import { Avatar, Chip, Logo, PathDoodle, cx } from './ui';
 
@@ -96,9 +96,41 @@ function NextCheckinCard({ onCheckin }: { onCheckin: boolean }) {
   );
 }
 
+/** XP changes that happen after the page loads (not ones restored from storage). */
+function useFreshXp() {
+  const lastXp = useApp((s) => s.lastXp);
+  const [loadedAt] = useState(() => Date.now());
+  return lastXp && lastXp.at > loadedAt ? lastXp : null;
+}
+
+/** "+10 XP · Going to …" pill that slides up from the bottom of the screen. */
+function XpToast() {
+  const xp = useFreshXp();
+  if (!xp) return null;
+  const gain = xp.delta >= 0;
+  return (
+    <div
+      key={xp.at}
+      role="status"
+      aria-live="polite"
+      className={cx(
+        'animate-toast pointer-events-none fixed bottom-8 left-1/2 z-50 flex max-w-[560px] items-center gap-3 rounded-full px-5 py-3 text-white shadow-[0_16px_40px_rgba(28,22,22,0.25)]',
+        gain ? 'bg-success' : 'bg-cardinal',
+      )}
+    >
+      <span className="flex items-center gap-1 font-display text-[18px] font-bold whitespace-nowrap">
+        {gain ? <Plus size={16} strokeWidth={3} /> : <Minus size={16} strokeWidth={3} />}
+        {Math.abs(xp.delta)} XP
+      </span>
+      <span className="truncate text-[14px] text-white/90">{xp.reason}</span>
+    </div>
+  );
+}
+
 function UserCard() {
   const profile = useApp((s) => s.profile);
   const total = useApp((s) => s.totalPoints);
+  const xp = useFreshXp();
   const streak = useApp((s) => s.streak);
   if (!profile) return null;
   return (
@@ -117,11 +149,25 @@ function UserCard() {
         </div>
       </div>
       <div className="flex gap-[6px]">
-        <Chip tone="cardinal">
-          <span key={total} className="animate-pop inline-block">
-            {total} pts
-          </span>
-        </Chip>
+        <span className="relative">
+          <Chip tone="cardinal">
+            <span key={total} className="animate-pop inline-block">
+              {total} pts
+            </span>
+          </Chip>
+          {xp && (
+            <span
+              key={xp.at}
+              className={cx(
+                'animate-xp-float pointer-events-none absolute inset-x-0 -top-1 text-center text-[14px] font-bold',
+                xp.delta >= 0 ? 'text-success' : 'text-cardinal',
+              )}
+            >
+              {xp.delta >= 0 ? '+' : '−'}
+              {Math.abs(xp.delta)}
+            </span>
+          )}
+        </span>
         <Chip tone="gold">{streak} wk streak</Chip>
       </div>
     </Link>
@@ -177,6 +223,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
         {ready && <UserCard />}
       </aside>
+      <XpToast />
       <main className="flex h-full min-w-0 flex-1 flex-col gap-7 overflow-y-auto px-12 py-10">
         {ready ? (
           children
