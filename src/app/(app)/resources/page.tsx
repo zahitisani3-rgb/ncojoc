@@ -14,6 +14,7 @@ function formatWhen(iso: string | null) {
     day: 'numeric',
     hour: 'numeric',
     minute: '2-digit',
+    timeZone: 'America/Los_Angeles',
   });
 }
 
@@ -98,7 +99,7 @@ export default function ResourcesPage() {
         actions={
           data && (
             <Chip tone={data.source === 'live' ? 'success' : 'neutral'}>
-              {data.source === 'live' ? 'Live from calendar.usc.edu' : 'USC calendar offline · sample data'}
+              {data.source === 'live' ? 'Live from calendar.usc.edu' : 'Saved events · USC calendar offline'}
             </Chip>
           )
         }
