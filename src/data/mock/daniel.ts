@@ -109,6 +109,7 @@ export const daniel: Persona = {
       },
     ],
   },
+  nextWeekNoteFits: (c) => c.enjoyment >= 4 && c.workload <= 3,
   nextWeek: {
     number: 7,
     start: '2026-11-23',

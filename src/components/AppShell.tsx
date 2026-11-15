@@ -49,7 +49,10 @@ function formatDay(iso: string) {
 function NextCheckinCard({ onCheckin }: { onCheckin: boolean }) {
   const week = useApp((s) => s.week);
   const checkinDay = useApp((s) => s.answers.checkinDay);
+  const streak = useApp((s) => s.streak);
   const date = week ? formatDay(week.end) : 'Sunday';
+  // On /checkin the demo jumps to check-in day, so that day reads as "today".
+  const todayIdx = onCheckin ? checkinDay : TODAY_INDEX;
   const daysLeft = Math.max(0, checkinDay - TODAY_INDEX);
   return (
     <div className="flex w-full flex-col gap-2 rounded-[16px] bg-gold-soft p-4">
@@ -60,8 +63,8 @@ function NextCheckinCard({ onCheckin }: { onCheckin: boolean }) {
       <p className="font-display text-[17px] font-bold text-ink">{onCheckin ? 'Closes tonight' : date}</p>
       <div className="flex w-full items-start justify-between">
         {DAYS.map((d, i) => {
-          const past = i < TODAY_INDEX;
-          const today = i === TODAY_INDEX;
+          const past = i < todayIdx;
+          const today = i === todayIdx;
           const due = i === checkinDay;
           return (
             <span
@@ -81,7 +84,7 @@ function NextCheckinCard({ onCheckin }: { onCheckin: boolean }) {
       </div>
       <p className="text-[12px] text-muted">
         {onCheckin
-          ? 'Submit before midnight to keep your streak'
+          ? `Submit to keep your ${streak} week streak`
           : `${daysLeft} day${daysLeft === 1 ? '' : 's'} left to keep your streak`}
       </p>
     </div>

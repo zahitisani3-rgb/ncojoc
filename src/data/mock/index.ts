@@ -84,7 +84,11 @@ export function noteFromCheckin(c: Checkin): string {
 export function mockNextWeek(userId: string, theme: Theme, checkin: Checkin, current: Week | null): Week {
   if (isPersonaId(userId)) {
     const p = personas[userId];
-    if (checkin.week === p.week.number) return clone(p.nextWeek);
+    if (checkin.week === p.week.number) {
+      const next = clone(p.nextWeek);
+      if (!p.nextWeekNoteFits(checkin)) next.adjustmentNote = noteFromCheckin(checkin);
+      return next;
+    }
   }
   const t = templates[theme];
   const count = checkin.workload >= 4 ? 3 : checkin.workload <= 2 ? 5 : 4;

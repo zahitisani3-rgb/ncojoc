@@ -1,4 +1,5 @@
 import type {
+  Checkin,
   LeaderboardRow,
   OnboardingAnswers,
   Pathway,
@@ -21,6 +22,8 @@ export interface Persona {
   week: Week;
   /** What submitCheckin returns from the mock for this persona's current week. */
   nextWeek: Week;
+  /** The hand-written nextWeek note only fits some answers; otherwise the note is generated. */
+  nextWeekNoteFits: (c: Checkin) => boolean;
   resume: ResumeEntry[];
   trend: TrendPoint[];
   leaderboard: LeaderboardRow[];

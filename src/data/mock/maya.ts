@@ -115,6 +115,7 @@ export const maya: Persona = {
       },
     ],
   },
+  nextWeekNoteFits: (c) => c.workload >= 4 && c.confidence <= 3,
   nextWeek: {
     number: 5,
     start: '2026-11-23',
@@ -195,8 +196,8 @@ export const maya: Persona = {
   ],
   trend: [
     { week: 1, enjoyment: 3, workload: 2, confidence: 2, points: 70 },
-    { week: 2, enjoyment: 4, workload: 3, confidence: 3, points: 95 },
-    { week: 3, enjoyment: 3, workload: 4, confidence: 3, points: 110 },
+    { week: 2, enjoyment: 3, workload: 3, confidence: 3, points: 95 },
+    { week: 3, enjoyment: 4, workload: 4, confidence: 3, points: 110 },
   ],
   leaderboard: [
     { rank: 1, name: 'Jordan K.', initials: 'JK', streak: 6, checkinRate: 1, points: 720 },
