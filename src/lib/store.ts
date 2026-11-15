@@ -16,7 +16,24 @@ import type {
 } from '@/types';
 import { personas, type PersonaId } from '@/data/mock';
 import { setApiSession } from './api';
-import { CHECKIN_POINTS, streakBonus } from './points';
+import { CHECKIN_POINTS, EVENT_ATTENDED_POINTS, EVENT_GOING_POINTS, streakBonus } from './points';
+
+/** A campus event the student said they'd attend or confirmed attending. */
+export interface EventLogEntry {
+  title: string;
+  org: string;
+  startsOn: string | null;
+  going: boolean;
+  attended: boolean;
+  note?: string;
+}
+
+export interface LoggableEvent {
+  id: string;
+  title: string;
+  org: string;
+  startsOn: string | null;
+}
 
 export const emptyAnswers: OnboardingAnswers = {
   name: '',
@@ -61,6 +78,8 @@ interface AppState {
   recentlyApproved: string[];
   /** Timestamp of the last AI week adjustment, drives the highlight on /week. */
   adjustedAt: number | null;
+  /** Campus events the student RSVP'd to or attended, keyed by event id. */
+  eventLog: Record<string, EventLogEntry>;
 
   setAnswers: (patch: Partial<OnboardingAnswers>) => void;
   loadPersona: (id: PersonaId) => void;
@@ -73,6 +92,10 @@ interface AppState {
   approveEntry: (id: string, text: string) => void;
   advanceStage: () => void;
   clearAdjusted: () => void;
+  /** Toggle "I'm going". Earns EVENT_GOING_POINTS; undoing takes them back. */
+  toggleGoing: (ev: LoggableEvent) => void;
+  /** Confirm attendance with a short takeaway. Earns EVENT_ATTENDED_POINTS once. */
+  markAttended: (ev: LoggableEvent, note: string) => void;
 }
 
 const clone = <T,>(v: T): T => JSON.parse(JSON.stringify(v)) as T;
@@ -143,6 +166,7 @@ export const useApp = create<AppState>()(
       resumeBase: { headline: '', items: [] },
       recentlyApproved: [],
       adjustedAt: null,
+      eventLog: {},
 
       setAnswers: (patch) => set((s) => ({ answers: { ...s.answers, ...patch } })),
 
@@ -163,6 +187,7 @@ export const useApp = create<AppState>()(
           resumeBase: p.resumeBase,
           recentlyApproved: [],
           adjustedAt: null,
+          eventLog: {},
         });
       },
 
@@ -182,6 +207,7 @@ export const useApp = create<AppState>()(
           resumeBase: { headline: '', items: [] },
           recentlyApproved: [],
           adjustedAt: null,
+          eventLog: {},
         }),
 
       applyGenerated: (pathway, week) => {
@@ -197,7 +223,7 @@ export const useApp = create<AppState>()(
             .join(' · '),
           items: [{ section: 'Education', title: 'University of Southern California', date: 'Expected graduation', bullets: [a.major ? `Major: ${a.major}` : 'Undeclared'] }],
         };
-        set({ userId: 'me', profile, pathway, week, totalPoints: 0, streak: 0, trend: [], checkins: [], resume: [], resumeBase, recentlyApproved: [], adjustedAt: null, checkinDraft: emptyDraft });
+        set({ userId: 'me', profile, pathway, week, totalPoints: 0, streak: 0, trend: [], checkins: [], resume: [], resumeBase, recentlyApproved: [], adjustedAt: null, checkinDraft: emptyDraft, eventLog: {} });
       },
 
       setTaskDone: (taskId, done, proofUrl) => {
@@ -271,6 +297,42 @@ export const useApp = create<AppState>()(
       },
 
       clearAdjusted: () => set({ adjustedAt: null }),
+
+      toggleGoing: (ev) => {
+        const { totalPoints } = get();
+        const eventLog = get().eventLog ?? {};
+        const prev = eventLog[ev.id];
+        if (prev?.attended) return; // already credited for attending
+        const going = !prev?.going;
+        set({
+          eventLog: { ...eventLog, [ev.id]: { title: ev.title, org: ev.org, startsOn: ev.startsOn, attended: false, going } },
+          totalPoints: Math.max(0, totalPoints + (going ? EVENT_GOING_POINTS : -EVENT_GOING_POINTS)),
+        });
+      },
+
+      markAttended: (ev, note) => {
+        const { totalPoints, resume } = get();
+        const eventLog = get().eventLog ?? {};
+        const prev = eventLog[ev.id];
+        if (prev?.attended) return;
+        const entry: ResumeEntry = {
+          id: `event-${ev.id}`,
+          section: 'Activities',
+          status: 'pending',
+          title: ev.title,
+          source: `Campus event · ${ev.title}`,
+          text: `Attended ${ev.title}${ev.org ? ` (${ev.org})` : ''}. ${note.trim()}`,
+        };
+        set({
+          eventLog: {
+            ...eventLog,
+            [ev.id]: { title: ev.title, org: ev.org, startsOn: ev.startsOn, going: true, attended: true, note: note.trim() },
+          },
+          // Students who skipped "I'm going" still get the RSVP points on top.
+          totalPoints: totalPoints + EVENT_ATTENDED_POINTS + (prev?.going ? 0 : EVENT_GOING_POINTS),
+          resume: resume.some((e) => e.id === entry.id) ? resume : [...resume, entry],
+        });
+      },
     }),
     {
       name: 'trojan-path-v2',

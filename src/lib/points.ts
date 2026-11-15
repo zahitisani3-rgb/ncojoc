@@ -2,6 +2,9 @@ import type { Tier } from '@/types';
 
 export const TIER_POINTS: Record<Tier, number> = { quick: 10, standard: 25, major: 60 };
 export const CHECKIN_POINTS = 15;
+/** Saying you'll go to a campus event, then confirming you went. */
+export const EVENT_GOING_POINTS = 10;
+export const EVENT_ATTENDED_POINTS = 25;
 
 /** +10% per consecutive weekly check-in, capped at +40%. */
 export function streakBonusPct(streak: number): number {
