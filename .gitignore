@@ -45,4 +45,4 @@ next-env.d.ts
 *.bundle
 trojan-path-source.zip
 
-scripts/engage-events.json
+scripts/campus-events.json

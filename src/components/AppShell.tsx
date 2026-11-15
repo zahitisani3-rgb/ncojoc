@@ -39,7 +39,7 @@ const SUMMARY: Record<string, { title: string; body: string }> = {
   },
   '/resources': {
     title: 'Real events, picked for your path.',
-    body: 'Upcoming events pulled from engageSC. The two that best fit your pathway and interests are pinned at the top.',
+    body: 'Upcoming events pulled from the USC event calendar. The two that best fit your pathway and interests are pinned at the top.',
   },
 };
 

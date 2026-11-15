@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { ArrowUpRight, CalendarDays, MapPin, Sparkles } from 'lucide-react';
-import { interestTerms, type CampusEvent, type EventsResponse, type MatchedEvent } from '@/lib/engage';
+import { interestTerms, type CampusEvent, type EventsResponse, type MatchedEvent } from '@/lib/campus-events';
 import { useApp } from '@/lib/store';
 import { Chip, PageHeader, cx } from '@/components/ui';
 
@@ -61,7 +61,7 @@ function EventCard({ ev, matched }: { ev: CampusEvent | MatchedEvent; matched?: 
       ) : (
         ev.description && <p className="line-clamp-2 text-[14px] leading-[1.5] text-muted">{ev.description}</p>
       )}
-      <span className="mt-auto pt-1 text-[14px] font-semibold text-cardinal">View on engageSC</span>
+      <span className="mt-auto pt-1 text-[14px] font-semibold text-cardinal">View event</span>
     </a>
   );
 }
@@ -93,12 +93,12 @@ export default function ResourcesPage() {
     <>
       <PageHeader
         eyebrow="Campus resources"
-        title="Happening on engageSC"
+        title="Happening at USC"
         subtitle="Upcoming USC events, with the two that fit your path pinned at the top."
         actions={
           data && (
-            <Chip tone={data.source === 'engage' ? 'success' : 'neutral'}>
-              {data.source === 'engage' ? 'Live from engage.usc.edu' : 'engageSC offline · sample data'}
+            <Chip tone={data.source === 'live' ? 'success' : 'neutral'}>
+              {data.source === 'live' ? 'Live from calendar.usc.edu' : 'USC calendar offline · sample data'}
             </Chip>
           )
         }
@@ -139,7 +139,7 @@ export default function ResourcesPage() {
           )}
 
           <p className="text-[12px] text-muted">
-            Events come from USC&apos;s public engageSC listings and refresh about once an hour. Check the event page for RSVP
+            Events come from USC&apos;s public event calendar (calendar.usc.edu) and refresh about once an hour. For club events, browse engageSC directly. Check the event page for RSVP
             details. TrojanPath is an independent student project.
           </p>
         </div>

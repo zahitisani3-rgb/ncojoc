@@ -1,10 +1,10 @@
 // GET /api/events?terms=data%20science,python,fintech&count=2
 //
-// Server side, so the browser never hits engage.usc.edu directly (no CORS
-// problems) and Engage sees at most one request per cache window.
+// Server side, so the browser never hits calendar.usc.edu directly (no CORS
+// problems) and USC sees at most one request per cache window.
 
 import type { NextRequest } from 'next/server';
-import { fetchEngageEvents, matchEvents, type CampusEvent, type EventsResponse } from '@/lib/engage';
+import { fetchCampusEvents, matchEvents, type CampusEvent, type EventsResponse } from '@/lib/campus-events';
 import { fallbackEvents } from '@/data/fallback-events';
 
 const DEFAULT_TERMS = ['career', 'internship', 'data', 'ai', 'python'];
@@ -15,12 +15,12 @@ export async function GET(request: NextRequest) {
   const count = Math.min(Number(params.get('count')) || 2, 5);
 
   let events: CampusEvent[];
-  let source: EventsResponse['source'] = 'engage';
+  let source: EventsResponse['source'] = 'live';
   try {
-    events = await fetchEngageEvents();
+    events = await fetchCampusEvents();
     if (events.length === 0) throw new Error('No events returned');
   } catch (err) {
-    console.warn('engageSC fetch failed, serving fallback:', (err as Error).message);
+    console.warn('calendar.usc.edu fetch failed, serving fallback:', (err as Error).message);
     events = fallbackEvents;
     source = 'fallback';
   }

@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "scrape:engage": "npx --yes tsx scripts/scrape-engage.ts"
+    "scrape:events": "npx --yes tsx scripts/scrape-events.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.119.0",
