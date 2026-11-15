@@ -134,6 +134,13 @@ export function mockResume(userId: string): ResumeEntry[] {
   return clone(isPersonaId(userId) ? personas[userId].resume : []);
 }
 
+function joinList(csv: string): string {
+  const parts = csv.split(',').map((x) => x.trim()).filter(Boolean);
+  if (parts.length < 2) return csv;
+  if (parts.length === 2) return `${parts[0]} and ${parts[1]}`;
+  return `${parts.slice(0, -1).join(', ')}, and ${parts[parts.length - 1]}`;
+}
+
 export function mockLinkedInPost(entries: ResumeEntry[]): string {
   const lines = entries.filter((e) => e.section !== 'Skills').slice(0, 3);
   const skills = entries.find((e) => e.section === 'Skills');
@@ -143,7 +150,7 @@ export function mockLinkedInPost(entries: ResumeEntry[]): string {
     '',
     bullets || '• Started a weekly plan built around real USC courses, clubs, and events.',
     '',
-    skills ? `Along the way I have been picking up ${skills.text.replace(/,([^,]*)$/, ', and$1')}.` : '',
+    skills ? `Along the way I have been picking up ${joinList(skills.text)}.` : '',
     'Huge thanks to the student orgs and advisors who made time for me. On to the next stage. #FightOn #USC',
   ]
     .filter((l, i, arr) => !(l === '' && arr[i - 1] === ''))

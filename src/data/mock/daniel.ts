@@ -160,15 +160,21 @@ export const daniel: Persona = {
       },
     ],
   },
+  resumeBase: {
+    headline: 'B.S. Biological Sciences, USC Dornsife College · Class of 2028 · Los Angeles, CA',
+    items: [
+      { section: 'Education', title: 'University of Southern California', date: 'Aug 2024 to May 2028', bullets: ['Pre-dental track · GPA 3.6'] },
+      { section: 'Activities', title: 'Pre-Dental Society at USC · Member', date: 'Sep 2025 to present', bullets: ['Attend monthly speaker events and DAT study sessions.'] },
+      { section: 'Activities', title: 'Cell Biology Lab · Research Assistant', date: 'Jan 2026 to present', bullets: ['Prepare cultures and log assay results for a graduate research team.'] },
+      { section: 'Skills', title: 'Clinical and lab', bullets: ['Laboratory techniques, Microsoft Excel, Korean (fluent)'] },
+    ],
+  },
   resume: [
-    { id: 'dr-b1', section: 'Education', status: 'approved', source: 'Intake', text: 'University of Southern California, Dornsife College · B.S. Biological Sciences, expected May 2028 · GPA 3.6' },
-    { id: 'dr-b2', section: 'Activities', status: 'approved', source: 'Intake', text: 'Member, Pre-Dental Society at USC · Fall 2025 to present' },
-    { id: 'dr-b3', section: 'Activities', status: 'approved', source: 'Intake', text: 'Undergraduate research assistant, cell biology lab: prepared cultures and logged assay results.' },
-    { id: 'dr-b4', section: 'Skills', status: 'approved', source: 'Intake', text: 'Laboratory techniques, Microsoft Excel, Korean (fluent)' },
     {
       id: 'dr-p1',
       section: 'Activities',
       status: 'pending',
+      title: 'General Dentistry Shadowing',
       source: 'Week 5 · Shadow a general dentist',
       text: 'Shadowed a general dentist for 38 hours across restorative, hygiene, and pediatric appointments.',
     },

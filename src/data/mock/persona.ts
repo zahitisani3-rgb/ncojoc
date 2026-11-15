@@ -4,6 +4,7 @@ import type {
   OnboardingAnswers,
   Pathway,
   Profile,
+  ResumeBase,
   ResumeEntry,
   TrendPoint,
   Week,
@@ -24,6 +25,8 @@ export interface Persona {
   nextWeek: Week;
   /** The hand-written nextWeek note only fits some answers; otherwise the note is generated. */
   nextWeekNoteFits: (c: Checkin) => boolean;
+  resumeBase: ResumeBase;
+  /** Draft entries waiting for review. */
   resume: ResumeEntry[];
   trend: TrendPoint[];
   leaderboard: LeaderboardRow[];

@@ -60,6 +60,11 @@
     size: letter;
     margin: 0.5in;
   }
+  html,
+  body {
+    height: auto !important;
+    background: #fff !important;
+  }
   body * {
     visibility: hidden !important;
   }

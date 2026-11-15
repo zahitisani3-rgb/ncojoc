@@ -68,6 +68,7 @@ export interface ResumeEntry {
   text: string;
   source: string; // "Week 4 · Train your first classifier"
   status: 'pending' | 'approved';
+  title?: string; // optional heading in the preview, e.g. "CAIS++ Image Classifier"
 }
 
 export interface LeaderboardRow {
@@ -119,4 +120,17 @@ export interface TrendPoint {
   workload: Scale;
   confidence: Scale;
   points: number;
+}
+
+/** Frontend-only: the student's existing resume, rendered in the preview. */
+export interface ResumeItem {
+  section: ResumeEntry['section'];
+  title: string;
+  date?: string;
+  bullets: string[];
+}
+
+export interface ResumeBase {
+  headline: string; // "B.S. Computer Science, USC Viterbi School of Engineering · Class of 2029"
+  items: ResumeItem[];
 }

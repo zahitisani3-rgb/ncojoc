@@ -8,6 +8,7 @@ import type {
   OnboardingAnswers,
   Pathway,
   Profile,
+  ResumeBase,
   ResumeEntry,
   Scale,
   TrendPoint,
@@ -55,6 +56,7 @@ interface AppState {
   checkinDraft: CheckinDraft;
   trend: TrendPoint[];
   resume: ResumeEntry[];
+  resumeBase: ResumeBase;
   /** Ids approved this session, highlighted as "New" in the resume preview. */
   recentlyApproved: string[];
   /** Timestamp of the last AI week adjustment, drives the highlight on /week. */
@@ -138,6 +140,7 @@ export const useApp = create<AppState>()(
       checkinDraft: emptyDraft,
       trend: [],
       resume: [],
+      resumeBase: { headline: '', items: [] },
       recentlyApproved: [],
       adjustedAt: null,
 
@@ -157,6 +160,7 @@ export const useApp = create<AppState>()(
           checkinDraft: emptyDraft,
           trend: p.trend,
           resume: p.resume,
+          resumeBase: p.resumeBase,
           recentlyApproved: [],
           adjustedAt: null,
         });
@@ -175,6 +179,7 @@ export const useApp = create<AppState>()(
           checkinDraft: emptyDraft,
           trend: [],
           resume: [],
+          resumeBase: { headline: '', items: [] },
           recentlyApproved: [],
           adjustedAt: null,
         }),
@@ -182,16 +187,17 @@ export const useApp = create<AppState>()(
       applyGenerated: (pathway, week) => {
         const a = get().answers;
         const profile = profileFromAnswers(a);
-        const resume: ResumeEntry[] = [
-          {
-            id: `me-edu-${Date.now()}`,
-            section: 'Education',
-            status: 'approved',
-            source: 'Intake',
-            text: `University of Southern California${a.school && a.school !== 'Other' ? `, ${a.school}` : ''} · ${a.major || 'Undeclared'}${a.year ? ` · ${a.year}` : ''}`,
-          },
-        ];
-        set({ userId: 'me', profile, pathway, week, totalPoints: 0, streak: 0, trend: [], checkins: [], resume, recentlyApproved: [], adjustedAt: null, checkinDraft: emptyDraft });
+        const resumeBase: ResumeBase = {
+          headline: [
+            a.major || 'Undeclared',
+            a.school && a.school !== 'Other' ? `USC ${a.school}` : 'University of Southern California',
+            a.year ?? '',
+          ]
+            .filter(Boolean)
+            .join(' · '),
+          items: [{ section: 'Education', title: 'University of Southern California', date: 'Expected graduation', bullets: [a.major ? `Major: ${a.major}` : 'Undeclared'] }],
+        };
+        set({ userId: 'me', profile, pathway, week, totalPoints: 0, streak: 0, trend: [], checkins: [], resume: [], resumeBase, recentlyApproved: [], adjustedAt: null, checkinDraft: emptyDraft });
       },
 
       setTaskDone: (taskId, done, proofUrl) => {
@@ -211,7 +217,7 @@ export const useApp = create<AppState>()(
       setDraft: (patch) => set((s) => ({ checkinDraft: { ...s.checkinDraft, ...patch } })),
 
       applyCheckin: (checkin, next) => {
-        const { week, streak, totalPoints, pathway, trend, checkins } = get();
+        const { week, streak, totalPoints, pathway, trend, checkins, resume } = get();
         const weekPts = week ? week.tasks.filter((t) => t.done).reduce((n, t) => n + t.points, 0) : 0;
         const bonus = streakBonus(weekPts, streak);
         let nextPathway = pathway;
@@ -224,7 +230,19 @@ export const useApp = create<AppState>()(
               : advance(pathway);
           }
         }
+        // Finished major tasks become draft resume entries to review.
+        const drafts: ResumeEntry[] = (week?.tasks ?? [])
+          .filter((t) => t.done && t.tier === 'major' && !resume.some((e) => e.id === `task-${t.id}`))
+          .map((t) => ({
+            id: `task-${t.id}`,
+            section: 'Projects',
+            status: 'pending',
+            title: t.title,
+            source: `Week ${checkin.week} · ${t.title}`,
+            text: `${t.title}${t.resource_name ? ` (${t.resource_name})` : ''}${checkin.proof_url ? ', with a public write-up and code' : ''}.`,
+          }));
         set({
+          resume: [...resume, ...drafts],
           week: next,
           pathway: nextPathway,
           streak: streak + 1,
@@ -255,7 +273,7 @@ export const useApp = create<AppState>()(
       clearAdjusted: () => set({ adjustedAt: null }),
     }),
     {
-      name: 'trojan-path-v1',
+      name: 'trojan-path-v2',
       storage: createJSONStorage(() => localStorage),
       onRehydrateStorage: () => (state) => {
         if (state) syncApi(state);
