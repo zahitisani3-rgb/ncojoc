@@ -13,6 +13,7 @@ const NAV = [
   { href: '/checkin', label: 'Check-in' },
   { href: '/resume', label: 'Resume' },
   { href: '/leaderboard', label: 'Leaderboard' },
+  { href: '/resources', label: 'Resources' },
 ] as const;
 
 const SUMMARY: Record<string, { title: string; body: string }> = {
@@ -35,6 +36,10 @@ const SUMMARY: Record<string, { title: string; body: string }> = {
   '/leaderboard': {
     title: 'Climb alongside other Trojans.',
     body: 'Ranked by streak and check-in rate within your pathway, so showing up every week beats one big sprint.',
+  },
+  '/resources': {
+    title: 'Real events, picked for your path.',
+    body: 'Upcoming events pulled from engageSC. The two that best fit your pathway and interests are pinned at the top.',
   },
 };
 

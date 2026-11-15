@@ -44,3 +44,5 @@ next-env.d.ts
 # hand-off artifacts
 *.bundle
 trojan-path-source.zip
+
+scripts/engage-events.json
