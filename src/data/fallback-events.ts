@@ -1,34 +1,31 @@
 import type { CampusEvent } from '@/lib/campus-events';
 
-// Shown only when calendar.usc.edu cannot be reached. These are placeholders,
-// labeled "Sample" in the UI. Before the demo, run `npm run scrape:events`
-// and replace them with two real events it finds.
+// Shown only when calendar.usc.edu cannot be reached, so the Resources page
+// still has real events during a demo. These two were pulled from the live
+// feed on Nov 15, 2026 with `npm run scrape:events`. Refresh them the same way.
 export const fallbackEvents: CampusEvent[] = [
   {
-    id: 'sample-1',
-    title: 'Data Science and AI Industry Night',
-    org: 'Sample event · replace with a real USC event',
-    startsOn: '2026-11-19T17:00:00-08:00',
-    endsOn: '2026-11-19T18:30:00-08:00',
+    id: 'ietc-reading-group-ai',
+    title: 'IETC Reading Group: An Interdisciplinary Reading Group on AI, Philosophy, and Society',
+    org: '',
+    startsOn: '2026-11-16T12:00:00-08:00',
+    endsOn: null,
     location: 'See event page',
-    description:
-      'Placeholder used when the USC calendar is unreachable. Hear how data scientists and machine learning engineers got their first internships.',
-    categories: ['Career', 'Data Science', 'AI'],
+    description: 'An interdisciplinary reading group on artificial intelligence, philosophy, and society.',
+    categories: ['AI'],
     image: null,
-    url: 'https://calendar.usc.edu/',
-    sample: true,
+    url: 'https://calendar.usc.edu/event/ietc-reading-group-an-interdisciplinary-reading-group-on-ai-philosophy-and-society',
   },
   {
-    id: 'sample-2',
-    title: 'Fintech and Python Workshop',
-    org: 'Sample event · replace with a real USC event',
-    startsOn: '2026-11-21T14:00:00-08:00',
-    endsOn: '2026-11-21T16:00:00-08:00',
+    id: 'price-presents-data-centers',
+    title: 'Price Presents: Data Centers at the Crossroads',
+    org: '',
+    startsOn: '2026-11-24T12:00:00-08:00',
+    endsOn: null,
     location: 'See event page',
-    description: 'Placeholder used when the USC calendar is unreachable. Build a small investing dashboard in Python.',
-    categories: ['Workshop', 'Fintech', 'Python'],
+    description: 'A talk on data centers, the infrastructure behind artificial intelligence and data.',
+    categories: ['AI', 'Data'],
     image: null,
-    url: 'https://calendar.usc.edu/',
-    sample: true,
+    url: 'https://calendar.usc.edu/event/price-presents-data-centers-at-the-crossroads',
   },
 ];

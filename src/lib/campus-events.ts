@@ -68,9 +68,16 @@ export async function fetchCampusEvents({ days = 30, pages = 3, now = new Date()
     all.push(...rows.map((r) => normalizeEvent(r.event, now)));
     if (rows.length < 100 || (body.page?.total && page >= body.page.total)) break;
   }
-  // Same event can appear once per instance; keep the first.
+  // The calendar can list one event under several ids (one per department or
+  // instance). Keep the first copy of each title and start time.
   const seen = new Set<string>();
-  return all.filter((e) => (seen.has(e.id) ? false : (seen.add(e.id), true)));
+  return all.filter((e) => {
+    const key = `${e.title.toLowerCase().trim()}|${e.startsOn ?? ''}`;
+    if (seen.has(e.id) || seen.has(key)) return false;
+    seen.add(e.id);
+    seen.add(key);
+    return true;
+  });
 }
 
 export function normalizeEvent(e: LocalistEvent, now = new Date()): CampusEvent {
@@ -108,7 +115,12 @@ const INTEREST_KEYWORDS: Record<Interest, string[]> = {
   unsure: ['career', 'exploration', 'networking', 'major'],
 };
 const ALWAYS = ['career', 'internship', 'recruiting'];
-const STOP = new Set(['and', 'the', 'for', 'with', 'path', 'engineer', 'of', 'in']);
+// Generic words from a major or pathway title that would match unrelated
+// events ("learning" from "Machine Learning" matching a healthcare panel).
+const STOP = new Set([
+  'and', 'the', 'for', 'with', 'path', 'of', 'in', 'engineer', 'engineering', 'learning', 'science', 'sciences',
+  'studies', 'management', 'systems', 'design', 'technology', 'arts', 'student', 'analyst', 'specialist',
+]);
 
 /** Turns a student's onboarding answers into search terms. */
 export function interestTerms(interests: Interest[], major = '', pathwayTitle = ''): string[] {
@@ -116,7 +128,8 @@ export function interestTerms(interests: Interest[], major = '', pathwayTitle = 
     .toLowerCase()
     .split(/[^a-z-]+/)
     .filter((w) => w.length > 2 && !STOP.has(w));
-  return [...new Set([...interests.flatMap((i) => INTEREST_KEYWORDS[i] ?? []), ...words, ...ALWAYS])];
+  const phrases = [major, pathwayTitle].map((p) => p.toLowerCase().trim()).filter((p) => p.length > 2);
+  return [...new Set([...interests.flatMap((i) => INTEREST_KEYWORDS[i] ?? []), ...phrases, ...words, ...ALWAYS])];
 }
 
 export function matchEvents(events: CampusEvent[], terms: string[], count = 2): MatchedEvent[] {
@@ -126,18 +139,21 @@ export function matchEvents(events: CampusEvent[], terms: string[], count = 2): 
       const title = ev.title.toLowerCase();
       const rest = `${ev.description} ${ev.org} ${ev.categories.join(' ')}`.toLowerCase();
       const hits: string[] = [];
-      let score = 0;
+      let topical = 0; // hits on the student's own interests
+      let bonus = 0; // generic career words only break ties
       for (const term of clean) {
         const re = new RegExp(`\\b${term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
-        if (re.test(title)) {
-          score += ALWAYS.includes(term) ? 1 : 3;
-          hits.push(term);
-        } else if (re.test(rest)) {
-          score += 1;
-          hits.push(term);
+        const inTitle = re.test(title);
+        if (!inTitle && !re.test(rest)) continue;
+        if (ALWAYS.includes(term)) bonus += 1;
+        else {
+          topical += inTitle ? 3 : 1;
+          hits.unshift(term);
         }
       }
-      if (/career/i.test(ev.org)) score += 1;
+      if (/career/i.test(ev.org)) bonus += 1;
+      // A career event about an unrelated field should not match on "career" alone.
+      const score = topical > 0 ? topical + bonus : 0;
       return { ...ev, score, matchedOn: [...new Set(hits)].slice(0, 3) };
     })
     .filter((ev) => ev.score > 0)
