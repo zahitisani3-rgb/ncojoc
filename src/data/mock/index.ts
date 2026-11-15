@@ -107,12 +107,17 @@ export function mockNextWeek(userId: string, theme: Theme, checkin: Checkin, cur
   };
 }
 
+function shortName(n: string) {
+  const [f, l] = n.trim().split(/\s+/);
+  return l ? `${f} ${l[0]}.` : f;
+}
+
 export function mockLeaderboard(userId: string, you: { name: string; initials: string; streak: number; points: number }): LeaderboardRow[] {
   const base = clone(isPersonaId(userId) ? personas[userId].leaderboard : maya.leaderboard);
   const others = base.filter((r) => !r.isYou);
   const rows: LeaderboardRow[] = [
     ...others,
-    { rank: 0, name: you.name, initials: you.initials, streak: you.streak, checkinRate: 1, points: you.points, isYou: true },
+    { rank: 0, name: shortName(you.name), initials: you.initials, streak: you.streak, checkinRate: 1, points: you.points, isYou: true },
   ];
   rows.sort((a, b) => b.streak - a.streak || b.checkinRate - a.checkinRate || b.points - a.points);
   return rows.map((r, i) => ({ ...r, rank: i + 1 }));
